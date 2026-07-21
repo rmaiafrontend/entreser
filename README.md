@@ -1,34 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Entre Ser — App (Next.js)
 
-## Getting Started
+Recriação do app **Entre Ser** em Next.js (App Router) com TypeScript, focada
+no **módulo de Autenticação** (spec M01 · Cadastro e Acesso).
 
-First, run the development server:
+Esta etapa é **frontend-only**: toda a UX de auth funciona de ponta a ponta
+contra uma camada de serviço tipada com implementação **mock** (sem backend
+real). O mock é um "seam" — trocá-lo por Supabase, API própria, etc. não exige
+mudar nenhuma tela.
+
+## Stack
+
+- **Next.js 16** (App Router, React 19, TypeScript estrito)
+- **Tailwind CSS v4** (tokens em `globals.css`)
+- **Zod** (validação compartilhada) + **react-hook-form**
+- Fontes: **Cormorant Garamond** (display) + **Onest** (corpo)
+
+## Rodando
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000  → redireciona para /login
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Conta de demonstração (semente)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Já existe uma usuária ativa para testar o login imediatamente:
 
-## Learn More
+- **E-mail:** `maria@entreser.com.br`
+- **Senha:** `Entre123`
 
-To learn more about Next.js, take a look at the following resources:
+> Como não há envio de e-mail real, os fluxos de **confirmação** e
+> **recuperação de senha** mostram um bloco "Modo demonstração" com o link/token
+> para concluir o fluxo manualmente. Em produção, o token vai apenas no e-mail.
+> O "banco" mock vive no `localStorage` — limpe-o para resetar o estado.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Escopo desta etapa
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Perfil **Usuária**, frontend-only. Fluxos implementados (spec M01):
 
-## Deploy on Vercel
+| Fluxo | Tela |
+|---|---|
+| F1 Cadastro e-mail/senha | `/cadastro` |
+| F2 Cadastro Google + complemento | botão Google · `/completar-cadastro` |
+| F3 Confirmação de e-mail | `/confirmar-email?token=` |
+| F4 Login | `/login` |
+| F5 Login Google | botão Google |
+| F6 Recuperação de senha | `/recuperar-senha` |
+| F7 Redefinição de senha | `/redefinir-senha?token=` |
+| F8 Sessão (access token simulado) | — |
+| F9 Logout | `/home` |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Fora do escopo** (fases futuras): backend real (DB/JWT/hash/e-mail/OAuth),
+perfis Profissional e AdminGeral (F10–F13), painel admin, rate limiting,
+endpoints LGPD, e a tela de onboarding de "fase" (apenas removida do cadastro).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Arquitetura (auth)
+
+```
+src/
+├── app/
+│   ├── (auth)/        páginas públicas (tema escuro)
+│   └── (app)/         rotas autenticadas (guard no cliente)
+├── features/auth/
+│   ├── components/    formulários e UI do tema escuro
+│   ├── schemas/       validação Zod (client + server no futuro)
+│   ├── services/      AuthService (interface) + MockAuthService
+│   ├── context/       AuthProvider / useAuth
+│   ├── hooks/         useGoogleSignIn
+│   └── lib/           erros padronizados
+└── lib/               fonts, cn()
+```
+
+**Trocar o backend:** editar apenas `src/features/auth/services/index.ts`.
+# entreser

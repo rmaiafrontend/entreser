@@ -1,1 +1,312 @@
+/* ─────────────────────────────────────────────────────────────────
+   Entre Ser — globals.css
+   Tailwind CSS v4 · design tokens via @theme inline
+   Telas de auth em Tailwind puro; o HeroUI v3 entra apenas para o
+   DatePicker de data de nascimento (ver birth-date-field.tsx).
+   ──────────────────────────────────────────────────────────────── */
+
 @import "tailwindcss";
+@import "@heroui/styles";
+
+/* Fontes via next/font — variáveis injetadas pelo layout.tsx:
+   --font-display → Cormorant Garamond
+   --font-onest   → Onest                                            */
+
+
+/* ─────────────────────────────────────────────────────────────────
+   1. DESIGN TOKENS — expostos como classes utilitárias do Tailwind
+      (ex.: bg-plum, text-cream, border-mauve)
+   ──────────────────────────────────────────────────────────────── */
+
+@theme inline {
+  /* Ameixa (plum) — cor estrutural */
+  --color-plum:       #2D1840;
+  --color-plum-mid:   #3F2558;
+  --color-plum-light: #6B4A8A;
+  --color-plum-soft:  #EDE6F4;
+
+  /* Mauve — acento primário (CTAs, links, foco) */
+  --color-mauve:       #7A4A5C;
+  --color-mauve-dark:  #512F3D;
+  --color-mauve-mid:   #A07080;
+  --color-mauve-soft:  #E8D5DA;
+  --color-mauve-ghost: #F5EDEF;
+
+  /* Vermelho — apenas alertas/erros */
+  --color-red-alert:   #A03040;
+  --color-red-muted:   #DBBEC2;
+
+  /* Creme — superfícies */
+  --color-cream:       #F5EDE0;
+  --color-cream-mid:   #EBD9C4;
+  --color-cream-dark:  #D4BC9E;
+
+  /* Sucesso */
+  --color-success-dark:  #2A6E2A;
+  --color-success-light: #D4EDD4;
+
+  /* Texto principal */
+  --color-ink: #1A0A28;
+
+  /* ── Papéis semânticos — tema claro (backoffice) ──
+     Aliases de papel sobre a paleta de marca, para o "clima" claro do
+     backoffice. Habilitam utilitárias (bg-surface, text-muted-foreground,
+     bg-accent, border-border…). O app da usuária segue com as classes de
+     marca cruas (gradiente ameixa próprio), sem depender destes papéis. */
+  --color-background:        #F5EDE0;             /* creme — fundo de página        */
+  --color-foreground:        #1A0A28;             /* texto principal (ameixa quase-preta) */
+  --color-surface:           #FFFFFF;             /* cards e modais                 */
+  --color-accent:            #7A4A5C;             /* mauve — CTAs, links, foco       */
+  --color-accent-foreground: #FFFFFF;
+  --color-accent-hover:      #512F3D;             /* mauve-dark                     */
+  --color-muted:             #EBD9C4;             /* cream-mid                      */
+  --color-muted-foreground:  #8B7A9E;             /* ameixa acinzentada (texto 2º)  */
+  --color-border:            rgba(45, 24, 64, 0.12);  /* ameixa 12%                 */
+  --color-danger:            #A03040;
+  --color-danger-foreground: #FFFFFF;
+  --color-success:           #2A6E2A;
+  --color-success-foreground:#FFFFFF;
+  --color-warning:           #7A5C00;
+  --color-warning-foreground:#FFFFFF;
+
+  /* Sombra do vidro fosco (topbar/bottom-nav) */
+  --shadow-glass: 0 8px 32px rgba(45, 24, 64, 0.12);
+
+  /* Tipografia */
+  --font-display: var(--font-display, 'Georgia', serif);
+  --font-body:    var(--font-onest, system-ui, sans-serif);
+
+  /* Border radius */
+  --radius-card:  22px;
+  --radius-input: 14px;
+  --radius-pill:  999px;
+
+  /* Sombras */
+  --shadow-card:       0 4px 24px rgba(45, 24, 64, 0.08);
+  --shadow-card-hover: 0 12px 40px rgba(45, 24, 64, 0.12);
+  --shadow-modal:      0 24px 64px rgba(45, 24, 64, 0.20);
+  --shadow-focus:      0 0 0 3px rgba(122, 74, 92, 0.18);
+
+  /* Motion */
+  --ease-enter:  cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   1b. TEMA HEROUI — usado só pelo DatePicker (data de nascimento).
+       Reescreve as variáveis semânticas do HeroUI para um calendário
+       escuro on-brand; todo o resto (hover/foco/soft) deriva via
+       color-mix no tema compartilhado do HeroUI. Fica em :root (fora
+       de @layer, logo vence as variáveis em layer base do HeroUI) para
+       também alcançar o popover, que é renderizado em portal no <body>.
+   ──────────────────────────────────────────────────────────────── */
+
+:root {
+  --overlay:            #3F2558;                 /* plum-mid — superfície do popover     */
+  --overlay-foreground: #F5EDE0;                 /* cream                                */
+  --foreground:         #F5EDE0;                 /* cream — texto do calendário/segmentos */
+  --accent:             #A07080;                 /* mauve-mid — dia selecionado/hoje/nav  */
+  --accent-foreground:  #2D1840;                 /* plum — texto sobre o accent           */
+  --muted:              rgb(245 237 224 / 0.5);  /* cream/50 — dias da semana, fora do mês */
+  --default:            rgb(245 237 224 / 0.12); /* cream/12 — hover de célula            */
+  --default-foreground: #F5EDE0;
+  --border:             rgb(45 24 64 / 0.12);    /* borda neutra (também ok nas telas claras) */
+  --overlay-shadow:     0 24px 64px rgb(20 8 30 / 0.55);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   2. BASE STYLES
+   ──────────────────────────────────────────────────────────────── */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    color: var(--color-plum);
+    line-height: 1.15;
+  }
+
+  h1 { font-size: 36px; font-weight: 400; }
+  h2 { font-size: 26px; font-weight: 500; }
+  h3 { font-size: 20px; font-weight: 500; }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+
+  /* Campos de texto cujo wrapper já trata o foco via focus-within NÃO recebem o
+     halo global: o <input> interno não tem border-radius próprio, então o halo de
+     3px sairia como um retângulo de cantos retos desenhado POR DENTRO da caixa
+     arredondada (o "segundo campo" mal encaixado). O foco fica sob responsabilidade
+     exclusiva do wrapper (focus-within:border-mauve + shadow de 1px).
+     Checkbox/radio/range ficam DE FORA: são controles nativos sem wrapper e
+     dependem do halo global como único indicador de foco por teclado. O `range`
+     é o slider de peso do mapeamento do onboarding — sem esta exceção, ele perde
+     todo sinal de foco (acessibilidade). */
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    box-shadow: none;
+  }
+
+  /* Tailwind v4 removeu o cursor:pointer padrão dos botões — restauramos aqui
+     para todo botão interativo (exceto desabilitados). */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   3. UTILITÁRIOS CUSTOMIZADOS
+   ──────────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  .font-display { font-family: var(--font-display); }
+  .font-body    { font-family: var(--font-body); }
+
+  /* Label/eyebrow padrão do projeto */
+  .text-eyebrow {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .rounded-card  { border-radius: var(--radius-card); }
+  .rounded-input { border-radius: var(--radius-input); }
+  .rounded-pill  { border-radius: var(--radius-pill); }
+
+  .shadow-card       { box-shadow: var(--shadow-card); }
+  .shadow-card-hover { box-shadow: var(--shadow-card-hover); }
+  .shadow-modal      { box-shadow: var(--shadow-modal); }
+  .shadow-glass      { box-shadow: var(--shadow-glass); }
+
+  .transition-es {
+    transition: all 200ms ease;
+  }
+  .transition-es-enter {
+    transition: all 350ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  /* Borda padrão do projeto (ameixa 12%) */
+  .border-es { border: 1px solid var(--color-border); }
+
+  /* Superfície "glass" — topbar do backoffice e cartões flutuantes */
+  .surface-glass {
+    background: rgba(255, 255, 255, 0.80);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.40);
+  }
+
+  /* Fundo do backoffice — gradiente radial creme → rosé */
+  .bg-backoffice {
+    background: radial-gradient(110% 70% at 100% 0%, #F3DEE2 0%, #F5EDEF 42%, #F5EDE0 78%);
+  }
+
+  /* Shimmer dos skeletons */
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(45, 24, 64, 0.06) 0%,
+      rgba(45, 24, 64, 0.12) 40%,
+      rgba(45, 24, 64, 0.06) 80%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* Animações de overlay (Dialog) e Toast */
+@keyframes es-dialog-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes es-dialog-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes es-toast-in {
+  from { opacity: 0; transform: translate(-50%, 24px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   4. AUTOFILL DO NAVEGADOR (Chrome/Safari) nos campos glassmorphic
+      FORA de @layer de propósito: estilos sem layer vencem QUALQUER
+      regra em @layer (Tailwind theme/base/components/utilities e as
+      camadas do HeroUI) e são a configuração que sobrepõe de forma
+      confiável a pintura interna de autofill do Chrome. Dentro de
+      @layer a regra perdia a cascata e não tinha efeito.
+
+      O campo fica REALMENTE transparente — o wrapper bg-white/10 +
+      backdrop-blur aparece atrás, idêntico a um campo digitado. Não
+      adicionamos tinta: o inset box-shadow é TRANSPARENTE (#0000),
+      então apenas SUPRIME o highlight do navegador sem clarear o
+      campo (mesma receita que o HeroUI usa em produção). A transição
+      de ~9999s congela a animação de background do autofill como
+      reforço contra flash de sub-frame em mudanças de estado.
+   ──────────────────────────────────────────────────────────────── */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+input:autofill {
+  /* Suprime o background do autofill SEM adicionar tinta (transparente). */
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
+
+  /* O autofill ignora `color`; só -webkit-text-fill-color pinta o texto. */
+  -webkit-text-fill-color: var(--color-cream) !important;
+  caret-color: var(--color-cream) !important;
+
+  /* Congela a transição interna de background-color do Chrome (anti-flash). */
+  transition: background-color 9999s ease-in-out 0s !important;
+
+  /* Ponto de partida transparente, não o highlight do UA. */
+  background-color: transparent !important;
+
+  /* Mantém a tipografia do campo (o autofill às vezes troca a fonte). */
+  font-family: inherit !important;
+  font-size: inherit !important;
+}
+
+/* Backoffice (tema claro): a regra global acima pinta o texto de CREME (para o
+   tema escuro da Usuária) — no fundo claro do backoffice isso ficava ilegível.
+   Aqui sobrepomos só a cor do texto/cursor para AMEIXA. Também fora de @layer e
+   com especificidade maior (.bg-backoffice …) que a regra global, então vence;
+   o box-shadow transparente herdado deixa o wrapper claro aparecer atrás. */
+.bg-backoffice input:-webkit-autofill,
+.bg-backoffice input:-webkit-autofill:hover,
+.bg-backoffice input:-webkit-autofill:focus,
+.bg-backoffice input:-webkit-autofill:active,
+.bg-backoffice input:autofill {
+  -webkit-text-fill-color: var(--color-plum) !important;
+  caret-color: var(--color-plum) !important;
+}
