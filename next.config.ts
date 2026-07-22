@@ -27,6 +27,11 @@ const nextConfig: NextConfig = {
         source: '/oauth2/authorization/:path*',
         destination: `${BACKEND_ORIGIN}/oauth2/authorization/:path*`,
       },
+      // Callback do Google (Spring Security). Só necessário se o `redirect_uri`
+      // do OAuth voltar pela origem do frontend; proxyamos same-origin como o
+      // resto. NÃO reescrever `/oauth2/redirect` — é rota real do App Router que
+      // captura o `?token=`.
+      { source: '/login/oauth2/:path*', destination: `${BACKEND_ORIGIN}/login/oauth2/:path*` },
       { source: '/usuaria/:path*', destination: `${BACKEND_ORIGIN}/usuaria/:path*` },
     ]
   },
