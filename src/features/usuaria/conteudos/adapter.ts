@@ -34,6 +34,7 @@ export function conteudoResumoFromDomain(c: Conteudo, consumido: boolean): Conte
     thumb: c.thumb,
     tags: c.tags.map((id) => ({ id, nome: tagNome(id) })),
     consumido,
+    publicadoEm: c.publicadoEm ?? c.criadoEm ?? null,
   }
 }
 
@@ -53,5 +54,6 @@ export function conteudoResumoFromApi(c: ConteudoApi): ConteudoResumo {
     thumb: c.thumbUrl ?? null,
     tags: (c.tags ?? []).map((t) => ({ id: t.id, nome: t.nome ?? '' })).filter((t) => t.id && t.nome),
     consumido: false,
+    publicadoEm: c.publicadoEm ?? c.criadoEm ?? null,
   }
 }

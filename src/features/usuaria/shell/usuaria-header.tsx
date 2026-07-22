@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { ESAvatar, LogoutIcon, ChevronDownIcon } from '@/components/ui'
+import { ESAvatar, LogoutIcon, ChevronDownIcon, PerfilIcon } from '@/components/ui'
 import { useAuth } from '@/features/auth/context/auth-context'
 import { getActiveKey, BellIcon } from '../ui'
 import { USUARIA_NAV } from './usuaria-nav'
@@ -174,6 +174,15 @@ function AccountMenu({ nome, email, onLogout }: { nome?: string; email?: string;
             </div>
           </div>
           <div className="p-1.5">
+            <Link
+              href="/conta"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-plum/70 transition-es hover:bg-plum/5 hover:text-plum [&>svg]:h-[18px] [&>svg]:w-[18px]"
+            >
+              <PerfilIcon />
+              Minha conta
+            </Link>
             <button
               type="button"
               role="menuitem"

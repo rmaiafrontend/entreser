@@ -3,41 +3,62 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { faseUsuariaService } from '../fase'
+import { onboardingUsuariaService } from '../onboarding'
 
 /**
- * OnboardingGate — logo após o login, verifica se a usuária já tem `FaseUsuaria`
- * definida (UF1, critério de aceite do M05). Sem fase → redireciona para
- * `/onboarding`; com fase → libera o app. O próprio `/onboarding` é sempre
- * liberado (evita loop). A verificação é barata e revalida a cada navegação sem
- * piscar loader (só a primeira checagem, sem fase confirmada, exibe o loader).
+ * OnboardingGate — logo após o login decide entre app e onboarding (UF1):
+ *  - COM `FaseUsuaria` definida → libera o app (caminho comum de quem já respondeu);
+ *  - sem fase, MAS com onboarding cadastrado → redireciona para `/onboarding`;
+ *  - sem fase e SEM onboarding cadastrado → libera o app mesmo assim.
+ *
+ * O último caso é o que evita o **trap**: sem perguntas cadastradas, mandar para
+ * `/onboarding` só faria a usuária clicar "Ir para o feed" e cair de volta aqui
+ * (bounce `/onboarding` ↔ `/feed`), porque ela nunca ganha fase. Por isso a ida
+ * ao onboarding é condicionada a EXISTIR onboarding. O próprio `/onboarding` é
+ * sempre liberado (evita loop). Qualquer falha na checagem também libera — nunca
+ * trancar a usuária fora do app. A checagem de perguntas só ocorre quando não há
+ * fase; quem já tem fase segue direto, sem custo extra.
  */
 export function OnboardingGate({ children }: { children: ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
   const [state, setState] = useState<'checking' | 'ok'>('checking')
-  const onOnboarding = pathname.startsWith('/onboarding')
+  // Rotas isentas do gate: o próprio `/onboarding` (evita loop) e `/conta` — a
+  // área de conta é a saída da usuária (logout/dados) e precisa ser sempre
+  // acessível, inclusive para quem ainda não tem fase.
+  const semGate = pathname.startsWith('/onboarding') || pathname.startsWith('/conta')
 
   useEffect(() => {
-    if (onOnboarding) return
+    if (semGate) return
     let ativo = true
-    faseUsuariaService
-      .getMinhaFase()
-      .then((mf) => {
+
+    async function decidir() {
+      try {
+        const mf = await faseUsuariaService.getMinhaFase()
         if (!ativo) return
-        if (mf.atual) setState('ok')
-        else router.replace('/onboarding')
-      })
-      .catch(() => {
+        if (mf.atual) {
+          setState('ok')
+          return
+        }
+        // Sem fase: só encaminha ao onboarding se houver perguntas cadastradas.
+        const perguntas = await onboardingUsuariaService.getPerguntas()
+        if (!ativo) return
+        if (perguntas.length > 0) router.replace('/onboarding')
+        else setState('ok')
+      } catch {
         // Uma falha na verificação não deve prender a usuária fora do app.
         if (ativo) setState('ok')
-      })
+      }
+    }
+
+    decidir()
     return () => {
       ativo = false
     }
-  }, [pathname, onOnboarding, router])
+  }, [pathname, semGate, router])
 
-  // O onboarding é a própria porta de entrada — renderiza direto, sem gate.
-  if (onOnboarding) return <>{children}</>
+  // Rotas isentas (onboarding, conta) renderizam direto, sem gate.
+  if (semGate) return <>{children}</>
 
   if (state === 'checking') {
     return (

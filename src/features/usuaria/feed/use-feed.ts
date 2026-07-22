@@ -8,6 +8,8 @@ interface UseFeedOptions {
   /** Filtro por tag (id). Recarrega quando muda. */
   tag?: string
   tamanho?: number
+  /** Quando `false`, não busca (ex.: home sem fase, que usa `useRecentes`). */
+  enabled?: boolean
 }
 
 /**
@@ -15,7 +17,7 @@ interface UseFeedOptions {
  * mais"). `reload` revalida após troca de fase (UF7). O efeito só faz setState em
  * callbacks assíncronos; `reload` marca o loading no contexto de evento.
  */
-export function useFeed({ tag, tamanho = 20 }: UseFeedOptions = {}) {
+export function useFeed({ tag, tamanho = 20, enabled = true }: UseFeedOptions = {}) {
   const [itens, setItens] = useState<FeedItem[]>([])
   const [fase, setFase] = useState<FeedFase | null>(null)
   const [pagina, setPagina] = useState(0)
@@ -32,6 +34,7 @@ export function useFeed({ tag, tamanho = 20 }: UseFeedOptions = {}) {
   }, [])
 
   useEffect(() => {
+    if (!enabled) return
     let ativo = true
     feedService
       .getFeed({ pagina: 0, tamanho, tag })
@@ -52,7 +55,7 @@ export function useFeed({ tag, tamanho = 20 }: UseFeedOptions = {}) {
     return () => {
       ativo = false
     }
-  }, [tag, tamanho, nonce])
+  }, [tag, tamanho, nonce, enabled])
 
   const loadMore = useCallback(async () => {
     if (loadingMore || !temMais) return
@@ -70,5 +73,6 @@ export function useFeed({ tag, tamanho = 20 }: UseFeedOptions = {}) {
     }
   }, [loadingMore, temMais, pagina, tamanho, tag])
 
-  return { itens, fase, loading, loadingMore, error, temMais, loadMore, reload }
+  // Desabilitado → nunca em loading (a home usa `useRecentes` nesse caso).
+  return { itens, fase, loading: enabled ? loading : false, loadingMore, error, temMais, loadMore, reload }
 }

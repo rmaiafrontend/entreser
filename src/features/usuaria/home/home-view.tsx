@@ -8,7 +8,10 @@ import { PlumHero, GlassCard, ContentCard, ChevronRightIcon } from '../ui'
 import { useMinhaFase } from '../fase/use-minha-fase'
 import { useFeed } from '../feed/use-feed'
 import { useTrilhas } from '../trilhas/use-trilhas'
+import { useRecentes } from '../conteudos/use-recentes'
 import { feedItemToVM } from '../feed/vm'
+import { conteudoResumoToVM } from '../conteudos/vm'
+import type { ContentItemVM } from '../lib/content'
 
 /**
  * HomeView — landing do app da Usuária. Responsiva: no mobile é uma coluna única
@@ -21,12 +24,23 @@ export function HomeView() {
   const primeiro = user?.nome?.split(' ')[0]
 
   const { data: minhaFase, loading: faseLoading } = useMinhaFase()
-  const { itens, loading: feedLoading } = useFeed({ tamanho: 6 })
+  const fase = minhaFase?.atual
+  const temFase = Boolean(fase)
+  // Só depois de resolver a fase sabemos que NÃO há uma — evita buscar recentes à toa.
+  const semFase = !faseLoading && !temFase
+
+  // Com fase: vitrine por fase (`/feed`). Sem fase: mais recentes (`/conteudos`,
+  // sem filtro) — a home de quem ainda não fez onboarding não fica vazia.
+  const { itens: feedItens, loading: feedLoading } = useFeed({ tamanho: 6, enabled: temFase })
+  const { itens: recentes, loading: recentesLoading } = useRecentes(6, semFase)
   const { trilhas } = useTrilhas()
 
-  const fase = minhaFase?.atual
   const emAndamento = trilhas.find((t) => t.progresso > 0 && t.progresso < 100)
-  const destaque = itens.slice(0, 6)
+
+  const vitrine: ContentItemVM[] = temFase
+    ? feedItens.slice(0, 6).map(feedItemToVM)
+    : recentes.map(conteudoResumoToVM)
+  const vitrineLoading = faseLoading || (temFase ? feedLoading : recentesLoading)
 
   return (
     <div className="min-h-dvh overflow-x-hidden">
@@ -108,32 +122,38 @@ export function HomeView() {
             </section>
           )}
 
-          {/* Conteúdo para você (vitrine) */}
+          {/* Vitrine — por fase quando há uma; senão, os conteúdos mais recentes */}
           <section>
             <SectionHead
-              title="Conteúdo para você"
-              description={fase ? `Selecionado para a fase ${fase.nome}` : undefined}
+              title={temFase ? 'Conteúdo para você' : 'Conteúdos recentes'}
+              description={
+                temFase
+                  ? `Selecionado para a fase ${fase?.nome}`
+                  : 'Enquanto você não define sua fase, explore os conteúdos mais recentes.'
+              }
               actionHref="/feed"
               actionLabel="Ver tudo"
             />
-            {feedLoading ? (
+            {vitrineLoading ? (
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {[0, 1, 2].map((i) => (
                   <ESSkeleton key={i} variant="rectangular" height={190} className="rounded-card" />
                 ))}
               </div>
-            ) : destaque.length === 0 ? (
+            ) : vitrine.length === 0 ? (
               <p className="mt-4 rounded-2xl border border-white/40 bg-white/50 px-4 py-8 text-center text-sm text-plum/45 backdrop-blur-sm">
-                Conteúdos para a sua fase aparecem aqui em breve.
+                {temFase
+                  ? 'Conteúdos para a sua fase aparecem aqui em breve.'
+                  : 'Novos conteúdos aparecem aqui assim que forem publicados.'}
               </p>
             ) : (
               <div
                 className="mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible lg:grid-cols-3"
                 style={{ scrollbarWidth: 'none' }}
               >
-                {destaque.map((item) => (
-                  <div key={item.id} className="w-[80%] shrink-0 snap-start sm:w-auto">
-                    <ContentCard item={feedItemToVM(item)} />
+                {vitrine.map((vm) => (
+                  <div key={vm.id} className="w-[80%] shrink-0 snap-start sm:w-auto">
+                    <ContentCard item={vm} />
                   </div>
                 ))}
               </div>

@@ -18,6 +18,8 @@ export interface ConteudoResumo {
   /** Tags do conteúdo (id + nome) — alimentam a navegação por tag no Explorar (UF4). */
   tags: { id: string; nome: string }[]
   consumido: boolean
+  /** Data de publicação (fallback `criadoEm`) — ordena os "recentes" da home pré-fase. */
+  publicadoEm: string | null
 }
 
 export interface ListarParams {

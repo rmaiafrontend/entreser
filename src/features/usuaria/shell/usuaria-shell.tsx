@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { BottomNav } from '../ui'
 import { UsuariaHeader } from './usuaria-header'
-import { USUARIA_NAV, NAV_HIDDEN_PREFIXES } from './usuaria-nav'
+import { USUARIA_NAV_MOBILE, NAV_HIDDEN_PREFIXES } from './usuaria-nav'
 
 /**
  * UsuariaShell — casca responsiva do app autenticado da Usuária (M05).
@@ -23,7 +23,7 @@ export function UsuariaShell({ children }: { children: ReactNode }) {
     <div className={cn('min-h-dvh bg-cream', !hideNav && 'pb-24 lg:pb-0')}>
       {!hideNav && <UsuariaHeader />}
       {children}
-      {!hideNav && <BottomNav items={USUARIA_NAV} className="lg:hidden" />}
+      {!hideNav && <BottomNav items={USUARIA_NAV_MOBILE} className="lg:hidden" />}
     </div>
   )
 }
