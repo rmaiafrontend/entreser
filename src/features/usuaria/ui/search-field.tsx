@@ -27,7 +27,7 @@ export function SearchField({
   return (
     <div
       className={cn(
-        'flex items-center gap-2 rounded-full border border-white/50 bg-white/70 px-4 py-2.5 backdrop-blur-sm transition-es focus-within:border-mauve/40 focus-within:bg-white/90',
+        'flex items-center gap-[11px] rounded-2xl border border-plum/[0.07] bg-white px-[15px] py-[13px] shadow-[0_4px_16px_rgba(45,24,64,0.06)] transition-es focus-within:border-mauve/40',
         className,
       )}
     >

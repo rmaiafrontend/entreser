@@ -73,7 +73,7 @@ export function PlumHero({
   return (
     <div
       className={cn(
-        'relative overflow-hidden bg-gradient-to-br from-plum via-plum-mid to-mauve-dark px-4 pt-10 pb-14',
+        'relative overflow-hidden bg-gradient-to-br from-plum via-plum-mid to-mauve-dark px-5 pt-10 pb-14',
         // Desktop elevado: respiro maior + anel hairline + realce interno + sombra
         // ameixa refinada (mesma tinta do token de sombra). Só em lg+.
         elevated &&

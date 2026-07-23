@@ -1,7 +1,7 @@
 'use client'
 
 import { ESSkeleton, EmptyState, TrilhasIcon } from '@/components/ui'
-import { TrilhaCard, ErrorRetry } from '../ui'
+import { TrilhaCard, TrilhaProgressCard, ErrorRetry } from '../ui'
 import type { TrilhaResumo } from './types'
 
 interface TrilhasListProps {
@@ -25,7 +25,7 @@ export function TrilhasList({ trilhas, loading, error, onRetry }: TrilhasListPro
     return (
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         {[0, 1, 2, 3].map((i) => (
-          <ESSkeleton key={i} variant="rectangular" height={84} className="rounded-2xl" />
+          <ESSkeleton key={i} variant="rectangular" height={94} className="rounded-[20px]" />
         ))}
       </div>
     )
@@ -49,18 +49,17 @@ export function TrilhasList({ trilhas, loading, error, onRetry }: TrilhasListPro
     <div className="space-y-6">
       {emAndamento && (
         <section>
-          <p className="text-eyebrow mb-3 text-mauve">Continue de onde parou</p>
-          <TrilhaCard
+          <p className="text-eyebrow mb-3 px-0.5 text-mauve">Continue de onde parou</p>
+          <TrilhaProgressCard
             title={emAndamento.titulo}
-            description={conteudosLabel(emAndamento.consumidos, emAndamento.total)}
+            meta={conteudosLabel(emAndamento.consumidos, emAndamento.total)}
             progress={emAndamento.progresso}
             href={`/trilhas/${emAndamento.id}`}
-            recommended
           />
         </section>
       )}
       <section>
-        <p className="text-eyebrow mb-3 text-mauve">Todas as trilhas</p>
+        <p className="text-eyebrow mb-[13px] px-0.5 text-mauve">Todas as trilhas</p>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {trilhas.map((t) => (
             <TrilhaCard

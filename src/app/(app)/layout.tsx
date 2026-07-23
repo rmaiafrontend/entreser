@@ -31,7 +31,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (status !== 'authenticated') {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-cream text-sm text-mauve">
+      <div className="flex min-h-dvh items-center justify-center bg-canvas text-sm text-mauve">
         Carregando…
       </div>
     )

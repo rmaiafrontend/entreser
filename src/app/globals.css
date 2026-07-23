@@ -41,6 +41,9 @@
   --color-cream-mid:   #EBD9C4;
   --color-cream-dark:  #D4BC9E;
 
+  /* Fundo ("palco") do app da usuária — blush rosé, menos amarelo que o creme */
+  --color-canvas:      #F7EFF1;
+
   /* Sucesso */
   --color-success-dark:  #2A6E2A;
   --color-success-light: #D4EDD4;
@@ -128,7 +131,7 @@
   }
 
   body {
-    background-color: var(--color-cream);
+    background-color: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-body);
     font-size: 16px;
@@ -218,9 +221,9 @@
     border: 1px solid rgba(255, 255, 255, 0.40);
   }
 
-  /* Fundo do backoffice — gradiente radial creme → rosé */
+  /* Fundo do backoffice — mesmo blush do app da usuária (--color-canvas) */
   .bg-backoffice {
-    background: radial-gradient(110% 70% at 100% 0%, #F3DEE2 0%, #F5EDEF 42%, #F5EDE0 78%);
+    background: var(--color-canvas);
   }
 
   /* Shimmer dos skeletons */

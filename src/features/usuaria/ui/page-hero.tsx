@@ -46,7 +46,7 @@ export function PageHero({ width = 'lg', className, ...rest }: PageHeroProps) {
         elevated
         innerClassName={width === 'md' ? 'lg:max-w-3xl lg:px-6' : undefined}
         {...rest}
-        className={cn('lg:rounded-card lg:pb-8', className)}
+        className={cn('max-lg:rounded-b-[30px] pb-6 lg:rounded-card lg:pb-8', className)}
       />
     </div>
   )
@@ -66,5 +66,5 @@ export function PageContent({
   children: ReactNode
 }) {
   const max = width === 'lg' ? 'max-w-5xl' : width === 'md' ? 'max-w-3xl' : 'max-w-xl'
-  return <div className={cn('mx-auto w-full px-4 sm:px-6', max, className)}>{children}</div>
+  return <div className={cn('mx-auto w-full px-5 sm:px-6', max, className)}>{children}</div>
 }

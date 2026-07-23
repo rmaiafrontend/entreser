@@ -20,7 +20,7 @@ export function UsuariaShell({ children }: { children: ReactNode }) {
   const hideNav = NAV_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
 
   return (
-    <div className={cn('min-h-dvh bg-cream', !hideNav && 'pb-24 lg:pb-0')}>
+    <div className={cn('min-h-dvh bg-canvas', !hideNav && 'pb-24 lg:pb-0')}>
       {!hideNav && <UsuariaHeader />}
       {children}
       {!hideNav && <BottomNav items={USUARIA_NAV_MOBILE} className="lg:hidden" />}

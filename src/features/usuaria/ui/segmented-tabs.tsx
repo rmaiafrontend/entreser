@@ -44,7 +44,9 @@ export function SegmentedTabs<K extends string>({
             className={cn(
               'flex-1 rounded-lg py-2.5 text-sm font-medium transition-es',
               inline && 'lg:flex-none lg:px-6',
-              active ? 'bg-white/20 text-cream shadow-sm' : 'text-cream/50 hover:text-cream/70',
+              active
+                ? 'bg-white font-semibold text-plum shadow-[0_3px_10px_rgba(0,0,0,0.25)]'
+                : 'text-cream/50 hover:text-cream/70',
             )}
           >
             {tab.label}

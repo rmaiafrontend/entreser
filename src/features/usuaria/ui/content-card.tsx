@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { Formato } from '@/features/admin/conteudos/types'
 import { FORMATO_LABEL, type ContentItemVM } from '../lib/content'
+import { ChevronRightIcon } from './icons'
 
 interface ContentCardProps {
   item: ContentItemVM
@@ -15,27 +16,26 @@ const GRADIENT: Record<Formato, string> = {
   audio: 'from-cream-mid to-plum-soft',
 }
 
-function TypeIcon({ formato }: { formato: Formato }) {
-  const cls = 'text-plum/30'
+function TypeIcon({ formato, size = 36, className = 'text-plum/30' }: { formato: Formato; size?: number; className?: string }) {
   if (formato === 'video') {
     return (
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className={cls} aria-hidden>
-        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1" />
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.2" />
         <path d="M10 8.5v7l5.5-3.5-5.5-3.5z" fill="currentColor" />
       </svg>
     )
   }
   if (formato === 'audio') {
     return (
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className={cls} aria-hidden>
-        <path d="M12 3v18m-4-13v8m-4-4v0m8-7v14m4-10v6m4-3v0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+        <path d="M12 3v18m-4-13v8m-4-4v0m8-7v14m4-10v6m4-3v0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
     )
   }
   return (
-    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className={cls} aria-hidden>
-      <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="1" />
-      <path d="M7 8h10M7 12h10M7 16h6" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M7 8h10M7 12h10M7 16h6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
     </svg>
   )
 }
@@ -126,30 +126,39 @@ export function ContentCard({ item, variant = 'default', className }: ContentCar
     ) : variant === 'compact' ? (
       <div
         className={cn(
-          'flex items-center gap-3 rounded-2xl p-3',
-          'border border-white/40 bg-white/80 backdrop-blur-xl',
-          'shadow-card transition-es hover:scale-[1.01] hover:shadow-card-hover active:scale-[0.99]',
+          'group flex items-center gap-3.5 rounded-2xl p-2.5 pr-3',
+          'border border-white/50 bg-white/80 backdrop-blur-xl',
+          'shadow-card transition-es hover:border-mauve/25 hover:shadow-card-hover active:scale-[0.99]',
           className,
         )}
       >
-        <div className={cn('flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br', GRADIENT[formato])}>
+        <div
+          className={cn(
+            'flex h-[68px] w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-xl',
+            !thumbUrl && `bg-gradient-to-br ${GRADIENT[formato]}`,
+          )}
+        >
           {thumbUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={thumbUrl} alt="" className="h-full w-full object-cover" />
           ) : (
-            <TypeIcon formato={formato} />
+            <TypeIcon formato={formato} size={28} />
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-mauve">{label}</p>
+          <p className="text-[10.5px] font-semibold uppercase tracking-wider text-mauve">{label}</p>
           <p className="mt-0.5 line-clamp-2 font-display text-[15px] leading-snug text-plum">{title}</p>
-          {(duration || consumido) && (
-            <div className="mt-1 flex items-center gap-2">
-              {duration && <span className="text-xs text-plum/40">{duration}</span>}
-              {consumido && <DoneBadge />}
-            </div>
-          )}
+          <div className="mt-1 flex items-center gap-1.5 text-xs text-plum/40">
+            {duration && <span>{duration}</span>}
+            {duration && meta && <span aria-hidden>·</span>}
+            {meta && <span className="truncate text-mauve/70">{meta}</span>}
+            {consumido && <DoneBadge className="ml-auto shrink-0" />}
+          </div>
         </div>
+        <ChevronRightIcon
+          size={18}
+          className="shrink-0 text-plum/20 transition-es group-hover:translate-x-0.5 group-hover:text-mauve"
+        />
       </div>
     ) : (
       <div

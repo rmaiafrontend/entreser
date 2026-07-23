@@ -62,7 +62,7 @@ export function OnboardingGate({ children }: { children: ReactNode }) {
 
   if (state === 'checking') {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-cream text-sm text-mauve">
+      <div className="flex min-h-dvh items-center justify-center bg-canvas text-sm text-mauve">
         Carregando…
       </div>
     )

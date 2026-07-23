@@ -1,63 +1,110 @@
-import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { ESProgressBar, TrilhasIcon } from '@/components/ui'
+import { TrilhasIcon } from '@/components/ui'
 
-interface TrilhaCardProps {
-  title: string
-  description?: string
-  /** 0–100. */
-  progress: number
-  href: string
-  recommended?: boolean
-  thumbUrl?: string | null
-  icon?: ReactNode
-  className?: string
+/** Barra de progresso do handoff: trilho plum/8, preenchimento mauve, arredondada. */
+function ProgressBar({ value, className }: { value: number; className?: string }) {
+  const pct = Math.max(0, Math.min(100, value))
+  return (
+    <div className={cn('overflow-hidden rounded-full bg-plum/[0.08]', className)}>
+      <div className="h-full rounded-full bg-mauve" style={{ width: `${pct}%` }} />
+    </div>
+  )
 }
 
 /**
- * TrilhaCard — linha da lista de trilhas (ícone/capa + título + progresso + %).
- * Realça trilhas indicadas para a fase da usuária.
+ * TrilhaProgressCard — card destacado "Continue de onde parou" (handoff Trilhas):
+ * fundo mauve-tint, tile de ícone 56px, título serifado + selo "Indicada",
+ * "X de Y conteúdos", % grande serifado e barra de progresso.
  */
-export function TrilhaCard({ title, description, progress, href, recommended, thumbUrl, icon, className }: TrilhaCardProps) {
+export function TrilhaProgressCard({
+  title,
+  meta,
+  progress,
+  href,
+  indicada = true,
+}: {
+  title: string
+  meta: string
+  progress: number
+  href: string
+  indicada?: boolean
+}) {
   return (
-    <Link href={href} className="block">
-      <div
-        className={cn(
-          'flex items-center gap-4 rounded-2xl border border-white/40 bg-white/60 p-4 backdrop-blur-sm transition-es',
-          'hover:scale-[1.01] hover:bg-white/80 active:scale-[0.99]',
-          recommended && 'border-mauve/30 bg-mauve-ghost/40',
-          className,
-        )}
-      >
-        <span
-          className={cn(
-            'flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl text-mauve',
-            recommended ? 'bg-mauve/10' : 'bg-plum-soft',
-          )}
-        >
-          {thumbUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={thumbUrl} alt="" className="h-full w-full object-cover" />
-          ) : (
-            icon ?? <TrilhasIcon size={20} />
-          )}
+    <Link
+      href={href}
+      className="block rounded-[22px] border border-mauve/20 bg-gradient-to-br from-[rgba(122,74,92,0.1)] to-[rgba(122,74,92,0.03)] px-[17px] py-4 shadow-[0_6px_20px_rgba(45,24,64,0.08)] transition-es hover:shadow-card-hover active:scale-[0.99]"
+    >
+      <div className="mb-[14px] flex items-center gap-[14px]">
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-mauve/[0.13] text-mauve">
+          <TrilhasIcon size={24} />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <p className="truncate text-sm font-medium text-plum">{title}</p>
-            {recommended && (
-              <span className="shrink-0 rounded-full bg-mauve/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-mauve">
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="font-display text-[18px] font-medium leading-[1.1] text-plum">{title}</h4>
+            {indicada && (
+              <span className="rounded-full bg-mauve px-[9px] py-[3px] text-[9.5px] font-bold uppercase tracking-[0.08em] text-cream">
                 Indicada
               </span>
             )}
           </div>
-          {description && <p className="mt-0.5 truncate text-xs text-plum/40">{description}</p>}
-          <div className="mt-2">
-            <ESProgressBar value={progress} size="sm" />
-          </div>
+          <p className="mt-1 text-[12.5px] text-plum/50">{meta}</p>
         </div>
-        <span className="shrink-0 text-xs font-semibold text-plum/30">{Math.round(progress)}%</span>
+        <span className="shrink-0 font-display text-[21px] text-mauve">{Math.round(progress)}%</span>
+      </div>
+      <ProgressBar value={progress} className="h-[7px]" />
+    </Link>
+  )
+}
+
+/**
+ * TrilhaCard — item da lista "Todas as trilhas" (handoff): capa 68px, título
+ * serifado + % na mesma linha, descrição truncada e barra de progresso.
+ */
+export function TrilhaCard({
+  title,
+  description,
+  progress,
+  href,
+  thumbUrl,
+  className,
+}: {
+  title: string
+  description?: string
+  progress: number
+  href: string
+  thumbUrl?: string | null
+  className?: string
+}) {
+  const pct = Math.round(progress)
+  return (
+    <Link href={href} className="block">
+      <div
+        className={cn(
+          'flex items-center gap-[14px] rounded-[20px] border border-white/60 bg-white p-[13px] shadow-[0_4px_16px_rgba(45,24,64,0.07)] transition-es hover:shadow-card-hover active:scale-[0.99]',
+          className,
+        )}
+      >
+        <div className="h-[68px] w-[68px] shrink-0 overflow-hidden rounded-2xl">
+          {thumbUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={thumbUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-mauve-soft to-cream-mid text-plum/30">
+              <TrilhasIcon size={24} />
+            </div>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-[10px]">
+            <h4 className="min-w-0 truncate font-display text-[17px] font-medium leading-[1.15] text-plum">{title}</h4>
+            <span className={cn('shrink-0 text-[12.5px] font-semibold', pct > 0 ? 'text-mauve' : 'text-plum/35')}>
+              {pct}%
+            </span>
+          </div>
+          {description && <p className="mt-[3px] truncate text-[12.5px] text-plum/45">{description}</p>}
+          <ProgressBar value={progress} className="mt-[9px] h-[6px]" />
+        </div>
       </div>
     </Link>
   )

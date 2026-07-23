@@ -20,7 +20,11 @@ export interface ConteudoByIdApi {
 
 /** Desembrulha o envelope e mapeia `progresso.concluido` → `consumido` (UF6). */
 export function conteudoDetalheFromApi(res: ConteudoByIdApi): ConteudoDetalhe {
-  return { ...conteudoFromApi(res.conteudo), consumido: Boolean(res.progresso?.concluido) }
+  return {
+    ...conteudoFromApi(res.conteudo),
+    consumido: Boolean(res.progresso?.concluido),
+    tagNome: res.conteudo.tags?.[0]?.nome ?? undefined,
+  }
 }
 
 /** Resumo a partir do domínio (mock) — resolve nomes de tags a partir dos ids. */

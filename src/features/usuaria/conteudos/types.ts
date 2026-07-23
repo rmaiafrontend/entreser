@@ -5,6 +5,8 @@ export type { Conteudo, Formato }
 /** Conteúdo completo + estado de progresso da usuária (UF6). */
 export interface ConteudoDetalhe extends Conteudo {
   consumido: boolean
+  /** Nome da 1ª tag (para o eyebrow do leitor) — vem do by-id do backend. */
+  tagNome?: string
 }
 
 /** Item resumido para listas de busca (UF3) e navegação por tag (UF4). */

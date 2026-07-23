@@ -1,10 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { EmptyState, ESButton, ConteudosIcon } from '@/components/ui'
-import { PageHero, PageContent, HeroBackButton, SegmentedTabs, ContentCard, ErrorRetry } from '../ui'
+import { PageHero, PageContent, HeroBackButton, SegmentedTabs, ContentCard, ErrorRetry, GlassCard, ChevronRightIcon, PosterCard, StartCard, ReadingRow } from '../ui'
 import { useFeed } from './use-feed'
 import { feedItemToVM } from './vm'
+import type { FeedItem } from './types'
+import { useMinhaFase } from '../fase/use-minha-fase'
+import { useRecentes } from '../conteudos/use-recentes'
+import { conteudoResumoToVM } from '../conteudos/vm'
 import { FeedTrilhasTab } from './feed-trilhas-tab'
 import { FeedExplorarTab } from './feed-explorar-tab'
 
@@ -23,15 +28,21 @@ const TABS: { key: Tab; label: string }[] = [
  */
 export function FeedView() {
   const [tab, setTab] = useState<Tab>('para-voce')
-  const feed = useFeed()
+  const { data: minhaFase, loading: faseLoading } = useMinhaFase()
+  const fase = minhaFase?.atual
+  const temFase = Boolean(fase)
+  // "Para você" é personalizado por fase. Sem fase (ex.: onboarding não cadastrado)
+  // não buscamos `/feed` — a aba cai em "recentes", como a home, e nunca quebra.
+  const feed = useFeed({ enabled: temFase })
 
   return (
     <div className="min-h-dvh">
       <PageHero
         topBar={<HeroBackButton />}
         topBarClassName="lg:hidden"
-        eyebrow={feed.fase ? `Para a fase ${feed.fase.nome}` : 'Aprender e crescer'}
+        eyebrow={fase ? `Para a fase · ${fase.nome}` : 'Aprender e crescer'}
         title="Feed"
+        description={temFase ? 'Selecionado para o seu momento' : undefined}
       >
         <div className="mt-5 max-w-md">
           <SegmentedTabs variant="inline" tabs={TABS} value={tab} onChange={setTab} />
@@ -39,10 +50,47 @@ export function FeedView() {
       </PageHero>
 
       <PageContent className="pb-10 pt-6">
-        {tab === 'para-voce' && <ParaVoce {...feed} />}
+        {tab === 'para-voce' &&
+          (faseLoading ? <FeedSkeleton /> : temFase ? <ParaVoce {...feed} /> : <ParaVoceSemFase />)}
         {tab === 'trilhas' && <FeedTrilhasTab />}
         {tab === 'explorar' && <FeedExplorarTab />}
       </PageContent>
+    </div>
+  )
+}
+
+/**
+ * "Para você" quando a usuária ainda NÃO tem fase — feed personalizado é
+ * impossível sem fase. Em vez de erro/tela vazia, mostra um convite para
+ * descobrir a fase + os conteúdos mais recentes (mesmo tratamento da home via
+ * `useRecentes`). Blinda o feed para o caso em que ele é alcançado sem fase.
+ */
+function ParaVoceSemFase() {
+  const { itens, loading } = useRecentes(9)
+  if (loading) return <FeedSkeleton />
+
+  return (
+    <div className="space-y-6">
+      <Link href="/fase" className="block">
+        <GlassCard className="flex items-center justify-between gap-3 p-5 transition-es hover:shadow-card-hover">
+          <div className="min-w-0">
+            <p className="text-eyebrow text-mauve">Personalize seu espaço</p>
+            <p className="mt-1 font-display text-lg text-plum">Descubra a sua fase</p>
+            <p className="mt-1 text-sm leading-relaxed text-plum/55">
+              Enquanto isso, veja os conteúdos mais recentes.
+            </p>
+          </div>
+          <ChevronRightIcon size={20} className="shrink-0 text-plum/30" />
+        </GlassCard>
+      </Link>
+
+      {itens.length > 0 && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {itens.map((c) => (
+            <ContentCard key={c.id} item={conteudoResumoToVM(c)} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -68,32 +116,69 @@ function ParaVoce({
     )
   }
 
-  // Tratamento editorial: o primeiro conteúdo vira um card de destaque (herói
-  // horizontal no desktop) e o restante segue numa grade "Mais para você".
-  const [destaque, ...resto] = itens
+  // Estrutura editorial do handoff: carrossel "Para assistir" (vídeos), destaque
+  // "Comece por aqui" e "Leituras rápidas" (artigos). O destaque prioriza um
+  // vídeo (o botão play do card faz sentido); áudios ficam na aba Explorar.
+  const destaque = itens.find((i) => i.formato === 'video') ?? itens[0]
+  const resto = itens.filter((i) => i.id !== destaque.id)
+  const videos = resto.filter((i) => i.formato === 'video')
+  const artigos = resto.filter((i) => i.formato === 'artigo')
 
   return (
-    <div className="space-y-8">
-      <ContentCard item={feedItemToVM(destaque)} variant="featured" />
+    <div className="space-y-6">
+      {videos.length > 0 && (
+        <section>
+          <SectionTitle title="Para assistir" subtitle="Vídeos para o seu momento" />
+          <PosterCarousel itens={videos} />
+        </section>
+      )}
 
-      {resto.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[.14em] text-plum/45">Mais para você</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {resto.map((item) => (
-              <ContentCard key={item.id} item={feedItemToVM(item)} />
+      <StartCard item={feedItemToVM(destaque)} />
+
+      {artigos.length > 0 && (
+        <section>
+          <SectionTitle title="Leituras rápidas" subtitle="Para ler em poucos minutos" />
+          <div className="mt-3.5 flex flex-col gap-[11px]">
+            {artigos.map((item) => (
+              <ReadingRow key={item.id} item={feedItemToVM(item)} trailing="save" />
             ))}
           </div>
         </section>
       )}
 
       {temMais && (
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center pt-1">
           <ESButton variant="secondary" isLoading={loadingMore} onPress={loadMore}>
             Carregar mais
           </ESButton>
         </div>
       )}
+    </div>
+  )
+}
+
+/** Cabeçalho de seção editorial do handoff: título serifado 23px + subtítulo. */
+function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div>
+      <h3 className="font-display text-[23px] font-medium leading-none text-plum">{title}</h3>
+      {subtitle && <p className="mt-1 text-[13px] text-plum/50">{subtitle}</p>}
+    </div>
+  )
+}
+
+/** Carrossel horizontal de PosterCards (208px), sangrando até as bordas no mobile. */
+function PosterCarousel({ itens }: { itens: FeedItem[] }) {
+  return (
+    <div
+      className="-mx-5 mt-3.5 flex snap-x snap-mandatory scroll-px-5 gap-3.5 overflow-x-auto px-5 pb-2 sm:-mx-6 sm:scroll-px-6 sm:px-6"
+      style={{ scrollbarWidth: 'none' }}
+    >
+      {itens.map((item) => (
+        <div key={item.id} className="w-[208px] shrink-0 snap-start">
+          <PosterCard item={feedItemToVM(item)} />
+        </div>
+      ))}
     </div>
   )
 }
