@@ -12,6 +12,7 @@ import {
   OnboardingIcon,
   MetricasIcon,
   PerfilIcon,
+  ManualIcon,
 } from '@/components/ui'
 
 export type BackofficeProfile = 'admin' | 'prof'
@@ -55,6 +56,10 @@ export const NAV_ADMIN: NavGroup[] = [
   {
     section: 'Análise',
     items: [{ key: 'metricas', label: 'Métricas', href: '/admin/metricas', icon: MetricasIcon }],
+  },
+  {
+    section: 'Ajuda',
+    items: [{ key: 'manual', label: 'Manual', href: '/admin/manual', icon: ManualIcon }],
   },
 ]
 

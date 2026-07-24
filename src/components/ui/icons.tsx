@@ -105,6 +105,12 @@ export const PerfilIcon = (p: IconProps) => (
     <path d="M4 21a8 8 0 0 1 16 0" />
   </Icon>
 )
+export const ManualIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+  </Icon>
+)
 
 /* ── Ações e utilitários ── */
 export const LockIcon = (p: IconProps) => (
@@ -145,6 +151,11 @@ export const ChevronDownIcon = (p: IconProps) => (
 export const ChevronLeftIcon = (p: IconProps) => (
   <Icon {...p}>
     <path d="m15 18-6-6 6-6" />
+  </Icon>
+)
+export const ChevronRightIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m9 6 6 6-6 6" />
   </Icon>
 )
 export const CloseIcon = (p: IconProps) => (
